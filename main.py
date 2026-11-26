@@ -1,33 +1,32 @@
 #!/usr/bin/env python3
-"""Rename the Planet — writes the entry line to /output/entry.txt.
+"""Rename the Planet — make.fun bounty entry.
 
-Deterministic: the entry text is a fixed string, so every run writes
-the exact same bytes.
+Writes the one-line entry text to /output/entry.txt (no trailing newline)
+and prints it to stdout. Deterministic: the entry is a fixed constant,
+so every run produces byte-identical output.
 """
 
 from pathlib import Path
 
 ENTRY = "Mars is now 'Refund.' Because after four billion years of red dust and no returns, it owes us all our money back."
 
-# Gate limits from the competition rules: /output/entry.txt must be
-# UTF-8 text of 1 to 200 characters, a single line, not only whitespace.
-MIN_ENTRY_LENGTH = 1
-MAX_ENTRY_LENGTH = 200
+# Bounty gates: entry must be 1-200 characters and a single line.
+MIN_LENGTH = 1
+MAX_LENGTH = 200
+OUTPUT_PATH = Path("/output/entry.txt")
 
 
 def main() -> None:
-    text = ENTRY
-    if not MIN_ENTRY_LENGTH <= len(text) <= MAX_ENTRY_LENGTH:
-        raise SystemExit(
-            f"entry must be {MIN_ENTRY_LENGTH}-{MAX_ENTRY_LENGTH} characters, "
-            f"got {len(text)}"
-        )
-    if "\n" in text or "\r" in text:
-        raise SystemExit("entry must be a single line")
-    output_dir = Path("/output")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "entry.txt").write_text(text, encoding="utf-8")
-    print(text)
+    # Validate the entry against the bounty gates before writing anything.
+    assert MIN_LENGTH <= len(ENTRY) <= MAX_LENGTH, (
+        f"entry length {len(ENTRY)} out of range "
+        f"{MIN_LENGTH}-{MAX_LENGTH}"
+    )
+    assert "\n" not in ENTRY and "\r" not in ENTRY, "entry must be a single line"
+
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_text(ENTRY, encoding="utf-8")
+    print(ENTRY)
 
 
 if __name__ == "__main__":
